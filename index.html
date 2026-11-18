@@ -406,7 +406,7 @@ table.compact td,table.compact th{padding:6px 8px}
 <div class="step try"><h2><span class="n">4</span>تجربة القرار</h2><div id="trafficTrial"></div></div>
 </section>
 <section class="page" id="p-energy" hidden>
-<header class="pagehead"><h1>إدارة الطاقة والمرافق</h1><p>أحمال المرافق، واستهلاك الكهرباء، وأعلى قدرة مقابل حد المغذي، وقرارات التكييف والتشغيل.</p><div id="energyStatus" class="small"></div></header>
+<header class="pagehead"><h1>إدارة الطاقة والمرافق</h1><p>أحمال المرافق، واستهلاك الكهرباء، وأعلى قدرة مقابل حد المغذي، وقرارات التكييف وتأجيل الأحمال.</p><div id="energyStatus" class="small"></div></header>
 <div class="step"><h2><span class="n">1</span>الوضع الحالي</h2><div class="btns"><label for="facPick" class="small muted">المرفق</label><select id="facPick" class="facpick"><option value="all">المنطقة كاملة</option><option value="A">المبنى الحكومي</option><option value="B">المبنى التجاري</option><option value="V">موقع الفعالية</option></select></div><div class="k3" id="energyKpis"></div><div class="split"><div class="panel" style="padding:10px"><div class="phead" style="margin-bottom:6px"><h2 id="facChartTitle">قدرة الكهرباء</h2><span class="sub">كيلوواط · كل ساعة</span></div><div class="chart" id="chGrid"></div></div><div class="panel" style="padding:10px"><div class="phead" style="margin-bottom:6px"><h2>المرفق في الساعة المعروضة</h2></div><div id="facNow"></div></div></div><div id="feederBox"></div></div>
 <div class="step"><h2><span class="n">2</span>ما يحتاج انتباهاً</h2><ul class="attn" id="energyAttn"></ul></div>
 <div class="step"><h2><span class="n">3</span>القرار المقترح للطاقة والمرافق</h2><div id="energyDec"></div></div>
@@ -418,7 +418,7 @@ table.compact td,table.compact th{padding:6px 8px}
 <div class="panel"><div class="phead"><h2>الإدارة المنفصلة والمتكاملة</h2><span class="sub">كل حالة محسوبة كاملة من مدخلاتها</span></div>
   <div class="tablewrap"><table id="caseTable" class="compact"></table></div>
   <details class="adv"><summary>عرض التفاصيل: كيف تُعرَّف الحالات ولماذا تتطابق أو تختلف</summary><div class="alert" style="margin-top:8px" id="caseNote"></div>
-  <p class="small muted" style="margin:8px 0 0">الطاقة منفردة: تختار من {تبريد مبكر، تعديل حرارة التكييف} ما يقلل الطاقة الكلية ضمن حد المغذي. المرور منفرداً: يختار من {تنسيق الإشارات، توجيه لطريق بديل} × {خروج في وقت واحد، خروج على دفعتين} ما يقلل التأخير. المنفصلة: الاختياران معاً دون تنسيق. المتكاملة: أفضل درجة مرجّحة بين كل التركيبات المستوفية للقيود.</p></details></div>
+  <p class="small muted" style="margin:8px 0 0">الطاقة منفردة: تختار من {تبريد مبكر، تأجيل الأحمال غير الحرجة} ما يقلل الطاقة الكلية ضمن حد المغذي. المرور منفرداً: يختار من {تنسيق الإشارات، توجيه لطريق بديل} × {خروج في وقت واحد، خروج على دفعتين} ما يقلل التأخير. المنفصلة: الاختياران معاً دون تنسيق. المتكاملة: أفضل درجة مرجّحة بين كل التركيبات المستوفية للقيود.</p></details></div>
 <div class="panel" id="altPanel"><div class="phead"><h2>بدائل خروج الجمهور</h2><span class="sub">نفس الطقس والطلب والحضور · باقي التشغيل كالمعتاد</span></div><div class="tablewrap"><table id="altTable" class="compact"></table></div></div>
 <div class="panel"><div class="phead"><h2>أثر كل إجراء في الخطة</h2><span class="sub">الخطة مقارنة بها بدون الإجراء، بعد إعادة الحساب</span></div><div class="tablewrap"><table id="impTable" class="compact"></table></div></div>
 <div class="panel"><div class="phead"><h2>ما لا يمثله النموذج</h2><span class="sub">لا يُدّعى اجتيازه</span></div><ul class="checks" id="notModeled"></ul></div>
@@ -511,7 +511,7 @@ const sumA = a => a.reduce((s, x) => s + x, 0);
 const SCENARIOS = {
   normal: {name: 'يوم عادي', tmax: 40, bg: 1.00, ev: 0, crowd: 20000},
   high:   {name: 'يوم طلب مرتفع', tmax: 46, bg: 1.12, ev: 0, crowd: 20000},
-  event:  {name: 'يوم فعالية', tmax: 42, bg: 1.00, ev: 22, crowd: 20000},
+  event:  {name: 'يوم فعالية', tmax: 42, bg: 1.00, ev: 22, crowd: 25000},
 };
 // الافتراضات: [المعرف، الاسم، القيمة، الوحدة، النوع، الملاحظة]
 const ASSUMPTIONS = [
@@ -531,7 +531,12 @@ const ASSUMPTIONS = [
   ['lotKW', 'قدرة إنارة وتهوية المواقف والمخارج', 250, 'ك.و', 'افتراض تجريبي للاختبار', 'تبقى تعمل من بدء الخروج حتى تصريف المركبات؛ يحتاج قيمة موثقة من الموقع'],
   ['lotMin', 'مدة الإنارة الدنيا بعد آخر مركبة', 30, 'دقيقة', 'افتراض تجريبي للاختبار', 'يحتاج الاشتراط النظامي'],
   ['holdCap', 'سعة منطقة الانتظار داخل الموقع', '', 'شخص', 'غير معروف', 'اتركه فارغاً إن لم يتوفر رقم موثق'],
-  ['comfort', 'الارتفاع المسموح في حرارة المبنى', '', '°م', 'غير معروف', 'للتبريد المسبق ورفع نقطة الضبط'],
+  ['comfort', 'الارتفاع المسموح في حرارة المبنى', '', '°م', 'غير معروف', 'للتبريد المسبق'],
+  ['evN', 'عدد شواحن المركبات الكهربائية في المبنى التجاري', 8, 'شاحن', 'تقديري', 'يُسأل عنه إدارة المبنى في المقابلة؛ الشحن غالباً أكبر الأحمال المؤجلة'],
+  ['evKW', 'قدرة الشاحن الواحد', 22, 'ك.و', 'تقديري', 'شاحن تيار متردد شائع؛ يحتاج تأكيداً من إدارة المبنى'],
+  ['facadeKW', 'إنارة الواجهات القابلة للتأجيل', 15, 'ك.و', 'تقديري', 'يحتاج تأكيداً من إدارة المبنى'],
+  ['screenKW', 'الشاشات الإعلانية القابلة للتأجيل', 10, 'ك.و', 'تقديري', 'يحتاج تأكيداً من إدارة المبنى'],
+  ['defBatches', 'عدد دفعات إرجاع الأحمال المؤجلة بعد الذروة', 3, 'دفعة (ساعة لكل دفعة)', 'افتراض تجريبي', 'الإرجاع على دفعات يمنع ذروة ثانية؛ الطاقة المؤجلة تعود كاملة'],
   ['sideStore', 'سعة تخزين الشارع الفرعي', 60, 'مركبة', 'افتراض تجريبي', 'أقصى طابور قبل أن يسد التقاطع الخلفي'],
   ['occ', 'معامل إشغال المركبة لتحويل التأخير إلى أشخاص', 2.5, 'شخص/مركبة', 'افتراض تجريبي', 'نفس القيمة المعلنة لسيارات الجمهور؛ حركة الممر المعتادة قد يكون إشغالها أقل'],
   ['holdW', 'وزن انتظار الجمهور داخل الموقع في الدرجة', 0, 'من 0 إلى 1', 'قابل للتعديل', '0 = الانتظار بلا تكلفة في الدرجة (افتراض يحتاج قبولاً)؛ 1 = ساعة انتظار الشخص في الموقع تساوي ساعة تأخيره في الطريق'],
@@ -558,6 +563,7 @@ const LOAD = {
   preShare: 0.30, preEta: 0.85, setK: 1, rebound: 0.5,
 };
 
+const defKW = as => (+as.evN || 0) * (+as.evKW || 0) + (+as.facadeKW || 0) + (+as.screenKW || 0);   // قدرة الأحمال القابلة للتأجيل
 function temps(tmax) { return HRS.map(h => tmax - 8 + 8 * Math.cos(2 * Math.PI * ((h % 24) - 15) / 24)); }
 function bgShape(h) { h = h % 24; return 900 + 500 * Math.exp(-(((h - 7.5) / 1.2) ** 2)) + 1500 * Math.exp(-(((h - 16) / 1.8) ** 2)) + 600 * Math.exp(-(((h - 20.5) / 2) ** 2)); }
 
@@ -585,10 +591,16 @@ function loads(inp, as, dec, tr) {
     [12, 13, 14].forEach(h => { const c = LOAD.A.kOcc * Math.max(0, T[h] - 24) * LOAD.preShare; A[h] -= c; moved += c; });
     [5, 6].forEach(h => { A[h] += moved / LOAD.preEta / 2; });
   }
-  // قرار الطاقة 2: رفع نقطة ضبط المبنى التجاري درجة واحدة في أعلى 3 ساعات حمل متوقع للمنطقة، مع ارتداد 50% في الساعة التالية
+  // قرار الطاقة 2: تأجيل الأحمال غير الحرجة في المبنى التجاري (شحن المركبات، إنارة الواجهات، الشاشات) خارج أعلى 3 ساعات حمل،
+  // ثم إرجاعها على دفعات متساوية في الساعات التالية لآخر ساعة ذروة؛ الطاقة المؤجلة تعود كاملة (لا تُحتسب وفراً)
   if (dec.e2) {
-    const ref = dec.peakHours || [];
-    ref.forEach(h => { const cut = LOAD.B.k * LOAD.setK; B[h] -= cut; if (h + 1 < HX && !ref.includes(h + 1)) B[h + 1] += cut * LOAD.rebound; });
+    const pk = (dec.peakHours || []).slice().sort((a, b) => a - b), cut = defKW(as);
+    const ref = pk.length ? HRS.filter(h => h >= pk[0] && h <= pk[pk.length - 1]) : [];   // نافذة متصلة من أول ساعة ذروة إلى آخرها
+    if (ref.length && cut > 0) {
+      ref.forEach(h => { B[h] -= cut; });
+      const n = Math.max(1, Math.round(as.defBatches || 3)), back = cut * ref.length / n, last = Math.max(...ref);
+      let k = 0; for (let h = last + 1; h < HX && k < n; h++) { if (ref.includes(h)) continue; B[h] += back; k++; }
+    }
   }
   // إنارة وتهوية المواقف بعد بدء الخروج: تعمل حتى تصريف مركبات الموقع + المدة الدنيا (من نموذج المرور بخطوة 15 دقيقة)
   const lot = HRS.map(() => 0);
@@ -720,7 +732,8 @@ function checks(c, ref, inp, as) {
   const ext = (name, val, ok) => add(name, 'خارجي', isBlank(val) ? 'unverified' : ok ? 'assumed' : 'fail', val);
   if (inp.ev && ex.hold) { const remain = inp.crowd * (inp.mVeh || 1) * ex.split[1]; ext('سعة منطقة الانتظار للدفعة الثانية', as.holdCap, remain <= as.holdCap);
     add('قبول المنظم والجمهور لانتظار الدفعة الثانية داخل الموقع', 'خارجي', 'unverified', remain); }
-  if (c.dec.e1 || c.dec.e2) ext('الراحة الحرارية في المبنيين', as.comfort, as.comfort >= LOAD.setK);
+  if (c.dec.e1) ext('الراحة الحرارية في المبنيين', as.comfort, as.comfort >= LOAD.setK);
+  if (c.dec.e2) add('موافقة إدارة المبنى التجاري على تأجيل الأحمال، وتحديد ما لا يمكن تأجيله', 'خارجي', 'unverified', defKW(as));
   const status = out.some(x => x.res === 'fail') ? 'fail' : out.some(x => x.type === 'خارجي') ? 'verify' : 'ok';
   return {list: out, status, dE, dC, dD};
 }
@@ -737,7 +750,7 @@ function score(c, ref, as) {
 }
 
 // ------------------------------------------------------------------ تشغيل كل البدائل
-const decName = d => { const p = []; if (d.e1) p.push('تبريد مسبق'); if (d.e2) p.push('نقطة ضبط'); if (d.t1) p.push('أولوية أخضر'); if (d.t2) p.push('تحويل'); if (d.exit && d.exit !== 'A') p.push(d.exit === 'B' ? 'خروج ب' : 'خروج ج'); return p.length ? p.join(' + ') : 'بدون قرارات'; };
+const decName = d => { const p = []; if (d.e1) p.push('تبريد مسبق'); if (d.e2) p.push('تأجيل أحمال'); if (d.t1) p.push('أولوية أخضر'); if (d.t2) p.push('تحويل'); if (d.exit && d.exit !== 'A') p.push(d.exit === 'B' ? 'خروج ب' : 'خروج ج'); return p.length ? p.join(' + ') : 'بدون قرارات'; };
 function evaluate(inp, as) {
   const ctx = {peakHours: [], priHours: []};
   const ref = runCase(inp, as, {exit: 'A'}, ctx);                     // التشغيل المعتاد = خروج أ بدون قرارات
@@ -772,10 +785,12 @@ function evaluate(inp, as) {
   // فلا تدخل بدائل الخروج على دفعتين في الترشيح الأساسي، وتُعرض كخيار مشروط منفصل. القاعدة نفسها على المنفصلة والمتكاملة.
   const holdPriced = (as.holdW || 0) > 0;
   const inPrimary = c => holdPriced || !EXIT[c.dec.exit || 'A'].hold;
-  const eligibleAll = combos.filter(c => c.chk.status !== 'fail' && inPrimary(c)).sort((a, b) => a.sc.value - b.sc.value);
-  const holdOption = inp.ev ? combos.filter(c => c.chk.status !== 'fail' && EXIT[c.dec.exit || 'A'].hold).sort((a, b) => a.sc.value - b.sc.value)[0] || null : null;
+  // عند تساوي الدرجة (مثل تأجيل الأحمال الذي ينقل الطاقة ولا يوفرها) تُفضَّل الخطة الأقل ذروة على المغذي
+  const bySc = (a, b) => { const d = a.sc.value - b.sc.value; return Math.abs(d) > 1e-9 ? d : a.peakKW - b.peakKW; };
+  const eligibleAll = combos.filter(c => c.chk.status !== 'fail' && inPrimary(c)).sort(bySc);
+  const holdOption = inp.ev ? combos.filter(c => c.chk.status !== 'fail' && EXIT[c.dec.exit || 'A'].hold).sort(bySc)[0] || null : null;
   const integBest = eligibleAll[0] || null;
-  const okBest = combos.filter(c => c.chk.status === 'ok' && inPrimary(c)).sort((a, b) => a.sc.value - b.sc.value)[0] || null;
+  const okBest = combos.filter(c => c.chk.status === 'ok' && inPrimary(c)).sort(bySc)[0] || null;
   const cases = [ref, clone(eBest, 'energy', 'الطاقة منفردة'), clone(tBest, 'traffic', 'المرور منفرداً'), clone(find(sepDec), 'separate', 'الإدارة المنفصلة (القطاعان دون تنسيق)'),
     integBest ? clone(integBest, 'integ', 'الإدارة المتكاملة (أفضل تركيبة مستوفية)') : null].filter(Boolean);
   // بدائل الخروج الثلاثة، وكل شيء آخر كالمعتاد
@@ -1141,7 +1156,7 @@ function refreshDrawer() { if ($('drawer').hidden || !W.drawerKey) return; const
 const pct = (a, b) => pctOf(a, b);
 function chkCounts(c) { const l = c.chk.list; return {p: l.filter(x => x.res === 'pass').length, f: l.filter(x => x.res === 'fail').length, u: l.filter(x => x.res === 'unverified' || x.res === 'assumed').length}; }
 // ------------------------------------------------------------ اللغة المبسطة (العرض فقط؛ الحساب لا يتغير)
-const PLAIN = {e1: 'تبريد مبكر للمبنى الحكومي', e2: 'تعديل درجة حرارة التكييف', t1: 'تنسيق الإشارات', t2: 'توجيه جزء من السيارات لطريق بديل'};
+const PLAIN = {e1: 'تبريد مبكر للمبنى الحكومي', e2: 'تأجيل الأحمال غير الحرجة', t1: 'تنسيق الإشارات', t2: 'توجيه جزء من السيارات لطريق بديل'};
 const EXIT_PLAIN = {B: 'خروج الجمهور على دفعتين مع تشغيل كامل للموقع', C: 'خروج الجمهور على دفعتين مع تخفيف تشغيل الموقع'};
 const plainName = d => { const p = ['e1', 'e2', 't1', 't2'].filter(k => d[k]).map(k => PLAIN[k]); if (d.exit && d.exit !== 'A') p.push(EXIT_PLAIN[d.exit]); return p.length ? p.join(' + ') : 'بدون إجراءات (التشغيل المعتاد)'; };
 const hoursTxt = hs => hs.length ? hs.slice().sort((a, b) => a - b).map(hh).join('، ') : '';
@@ -1160,9 +1175,9 @@ function buildDecs(R, plan, withImp) {
     eng: 'تبريد مسبق: خفض 30% من حمل التبريد 12–14 ونقله إلى 5–6 ص بكفاءة تخزين 0.85 (افتراض)',
     why: 'يخفض قدرة المبنى وقت ذروة الظهر', cost: 'ينقل الاستهلاك ولا يوفره: طاقة إضافية صباحاً لأن كفاءة التخزين 85%', trade: 'تشغيل مبكر للتكييف يستهلك طاقة إضافية صباحاً'});
   if (d.e2) { const hs = R.ctx.peakHours; decs.push({id: 'e2', kind: 'fac', title: PLAIN.e2, agency: 'إدارة المبنى التجاري (جهة خاصة، يتطلب اتفاقاً)', win: winOf(hs), when: hoursTxt(hs),
-    act: `رفع درجة ضبط التكييف في المبنى التجاري ${fmt(LOAD.setK)} درجة مئوية (+${fmt(LOAD.setK)}°م) في أعلى ثلاث ساعات استهلاك: ${hoursTxt(hs)}`,
-    eng: `رفع نقطة الضبط ${fmt(LOAD.setK)}°م: −${fmt(LOAD.B.k * LOAD.setK)} ك.و في كل ساعة ذروة، وارتداد ${fmt(LOAD.rebound * 100)}% في الساعة التالية`,
-    why: 'أعلى ثلاث ساعات قدرة في التشغيل المعتاد', cost: 'خدمة تبريد أقل بدرجة، وجزء من الحمل يعود في الساعة التالية', trade: `المبنى التجاري أدفأ بـ ${fmt(LOAD.setK)}°م في ساعات الذروة`}); }
+    act: `تأجيل الأحمال غير الحرجة في المبنى التجاري (شحن المركبات الكهربائية، إنارة الواجهات، الشاشات الإعلانية) من أول ساعة ذروة إلى آخرها (${hh(Math.min(...hs))}–${hh(Math.max(...hs))})، ثم إرجاعها على ${fmt(R.as.defBatches || 3)} دفعات`,
+    eng: `تأجيل ${fmt(defKW(R.as))} ك.و تقديرية (${fmt(R.as.evN)} شواحن × ${fmt(R.as.evKW)} ك.و + واجهات ${fmt(R.as.facadeKW)} + شاشات ${fmt(R.as.screenKW)}) في كل ساعة من نافذة الذروة، وإرجاع الطاقة كاملة على دفعات متساوية بعد آخر ساعة ذروة`,
+    why: 'أعلى ثلاث ساعات قدرة في التشغيل المعتاد', cost: 'تأخير تشغيل بعض الخدمات غير الأساسية في ساعات الذروة، والطاقة تعود بعدها ولا تُوفَّر', trade: 'شحن المركبات وإنارة الواجهات والشاشات تتأخر إلى ما بعد الذروة'}); }
   if (d.t1) { const hs = R.ctx.priHours; decs.push({id: 't1', kind: 'traffic', title: PLAIN.t1, agency: 'إدارة المرور', win: winOf(hs), when: hoursTxt(hs),
     act: `وقت أخضر أطول للممر الرئيسي في التقاطعات الثلاثة، في ساعات الزحمة: ${hoursTxt(hs)}`,
     eng: `أولوية الأخضر: +${fmt(NET.gPri * 100)}% من دورة ${NET.cycle} ثانية لنسبة أخضر الممر (بحد 70%)، وتنقص سعة الشوارع الفرعية بالقدر نفسه`,
@@ -1184,6 +1199,7 @@ function buildDecs(R, plan, withImp) {
 
 // ما يحتاج تحققاً: كل شرط خارجي غير متحقق + كل قيد متجاوز + افتراضات غير مختبرة تخص الإجراءات
 const EXT_PLAIN = {'الراحة الحرارية في المبنيين': 'أن تبقى الحرارة داخل المبنيين مقبولة بعد تعديل التكييف (الحد المسموح غير معروف)',
+  'موافقة إدارة المبنى التجاري على تأجيل الأحمال، وتحديد ما لا يمكن تأجيله': 'موافقة إدارة المبنى التجاري على تأجيل الأحمال، وتحديد ما لا يمكن تأجيله (قدرات الأحمال تقديرية)',
   'سعة منطقة الانتظار للدفعة الثانية': 'وجود منطقة انتظار داخل الموقع تتسع للدفعة الثانية',
   'قبول المنظم والجمهور لانتظار الدفعة الثانية داخل الموقع': 'موافقة منظم الفعالية وقبول الجمهور انتظار الدفعة الثانية داخل الموقع'};
 function needsCheck(c) {
@@ -1595,12 +1611,13 @@ function renderEnergy() {
     <p class="small muted" style="margin:8px 0 0">${f === 'A' ? 'دوام 7:00 ص–3:00 م.' : f === 'B' ? 'مفتوح 8:00 ص–11:00 م، وأعلى حمل مساءً.' : f === 'V' ? (R.inp.ev ? `تجهيز ثم تشغيل كامل حتى ${hh(R.inp.ev)}، ثم إنارة المواقف حتى تصريف السيارات.` : 'لا فعالية في هذه الحالة.') : 'المبنيان وموقع الفعالية فقط.'}</p>`;
   const pkp = b.peakKW / as.feederKW * 100, items = [[pkp > 100 ? 'bad' : pkp > 90 ? '' : 'ok', `أعلى قدرة للمنطقة ${N(b.peakKW)} ك.و الساعة ${hh(b.peakHour)}: ${N(pkp)}% من حد المغذي (${N(as.feederKW)} ك.و).`],
     ['', `أعلى ثلاث ساعات استهلاك: ${hoursTxt(R.ctx.peakHours)}.`], [maxA(b.L.T) >= 44 ? 'bad' : '', `أعلى حرارة خارجية ${N(maxA(b.L.T), 1)} °م.`]];
-  if (decs.length) items.push(['', 'الحد المسموح لارتفاع الحرارة داخل المبنيين غير معروف؛ شرط الراحة الحرارية غير متحقق.']);
+  if (decs.some(x => x.id === 'e1')) items.push(['', 'الحد المسموح لارتفاع الحرارة داخل المبنيين غير معروف؛ شرط الراحة الحرارية غير متحقق.']);
+  if (decs.some(x => x.id === 'e2')) items.push(['', 'قدرات الأحمال المؤجلة تقديرية؛ موافقة إدارة المبنى التجاري وتحديد ما لا يمكن تأجيله غير متحققين.']);
   { const li = loadItem(c, as, h); items.unshift(earlyItem(c, as, h)); if (li) items.unshift(li); }
   $('energyAttn').innerHTML = attn(items);
   $('energyDec').innerHTML = decs.length ? `${actRows(decs, 'energy')}${condBox(needsCheck(pe))}<p class="small muted" style="margin:0">هذه القرارات جزء من الخطة المشتركة، وتظهر لدى إدارة المدينة للمراجعة.</p>${detailsOf(decs)}` : '<p class="muted" style="margin:0">لا يوجد قرار مقترح لإدارة الطاقة والمرافق في هذه الحالة.</p>';
   $('energyTrial').innerHTML = trialPanel({key: 'energy', on: W.trial.energy, case: pe, decs, apprKey: 'energy', own: ['energyKWh', 'peakKW', 'co2Elec', 'eA', 'eB'].concat(R.inp.ev ? ['eV'] : []),
-    cross: ['delayVh'], crossTitle: 'الأثر على المرور', lead: 'جرّب قرارات التكييف وحدها على التشغيل المعتاد، وشاهد أثرها على الأحمال وحد المغذي.'});
+    cross: ['delayVh'], crossTitle: 'الأثر على المرور', lead: 'جرّب قرارات الطاقة وحدها على التشغيل المعتاد، وشاهد أثرها على الأحمال وحد المغذي.'});
   renderFeeder(c, b, pe, as, h);
 }
 
@@ -1632,7 +1649,7 @@ function renderResident() {
 const JURY = [
   {t: 'المشكلة', go() { resetAll(true); setPage('city'); renderAll(); }, txt: () => problemText(W.R), op: 'المستخدم: مشغّل مركز إدارة المدينة.'},
   {t: 'إدارة المرور', go() { setPage('traffic'); setHour(argMax(W.ref.tr.tMain)); }, txt: () => decsOf('traffic').map(x => x.title).join(' + ') || 'لا قرار للمرور.', op: 'كل جهة ترى مؤشراتها وقراراتها أولاً.'},
-  {t: 'إدارة الطاقة', go() { setPage('energy'); }, txt: () => decsOf('energy').map(x => x.title).join(' + ') || 'لا قرار للطاقة.', op: 'شرط الراحة الحرارية ظاهر وغير متحقق.'},
+  {t: 'إدارة الطاقة', go() { setPage('energy'); }, txt: () => decsOf('energy').map(x => x.title).join(' + ') || 'لا قرار للطاقة.', op: 'شرط موافقة إدارة المبنى على تأجيل الأحمال ظاهر وغير متحقق.'},
   {t: 'الخطة المشتركة', go() { setPage('city'); W.trial.city = 'plan'; renderAll(); }, txt: () => W.R.rec ? `التأخير ${word(pct(W.R.rec.delayVh, W.ref.delayVh))}، والكهرباء ${word(pct(W.R.rec.energyKWh, W.ref.energyKWh))}، والانبعاثات ${word(pct(W.R.rec.co2, W.ref.co2))}.` : '', op: 'قرارات الجهات تظهر هنا للمراجعة.'},
   {t: 'المقارنة العادلة', go() { setPage('reports'); }, txt: () => { const s = W.R.cases.find(c => c.key === 'separate'), i = W.R.cases.find(c => c.key === 'integ'); return i ? (s.label === i.label ? 'المنفصلة والمتكاملة تصلان للقرار نفسه. النموذج الحالي لم يُظهر تفوقًا إضافيًا للإدارة المتكاملة في الحالات المختبرة.' : 'المتكاملة تختلف عن المنفصلة.') : ''; }, op: 'أغلب خفض التأخير من قرارات المرور نفسها.'},
   {t: 'موافقة مبدئية', go() { setPage('city'); W.trial.city = 'plan'; renderAll(); }, txt: () => 'تسجيل موافقة مبدئية من إدارة المدينة، مع بقاء الحالة مشروطة بالتحقق.', op: 'لا تُرسل أوامر.', next: 'تسجيل موافقة مبدئية', act() { W.appr.city = true; renderAll(); }},
@@ -1854,6 +1871,172 @@ if (window.ResizeObserver) { let rz = 0, last = ''; new ResizeObserver(es => { c
 resetAll(true);
 SNAP0 = snap(W.R);
 renderAll();
+// ================================================================== مراسلات الجهات
+
+(() => {
+  const AGS = {
+    city:    {n: 'إدارة المدينة',          c: '#1F7A7A'},
+    traffic: {n: 'إدارة المرور',           c: '#1F6FB2'},
+    energy:  {n: 'إدارة الطاقة والمرافق',  c: '#B7790D'},
+    events:  {n: 'جهة تنظيم الفعاليات',    c: '#7B4DB3'}
+  };
+  const LOCS = {
+    main:   {n: 'الممر الرئيسي',     x: 420, y: 300},
+    int1:   {n: 'التقاطع 1',         x: IX[0], y: 300},
+    int2:   {n: 'التقاطع 2',         x: IX[1], y: 300},
+    int3:   {n: 'التقاطع 3',         x: IX[2], y: 300},
+    alt:    {n: 'الطريق البديل',     x: 420, y: 452},
+    feeder: {n: 'مغذي المنطقة',      x: 170, y: 150},
+    bldA:   {n: 'المبنى الحكومي',    x: BLD.A.x, y: BLD.A.y},
+    bldB:   {n: 'المبنى التجاري',    x: BLD.B.x, y: BLD.B.y},
+    venue:  {n: 'موقع الفعالية',     x: 830, y: 300}
+  };
+  // ما يحدّثه اعتماد كل رسالة في الخطة المشتركة (مفتاح W.appr)
+  const TEMPLATES = [
+    {id: 'tSig',  to: 'traffic', loc: 'int2',   ap: 'traffic', sub: 'طلب اعتماد: تنسيق الإشارات وتحويل جزء من المركبات', body: () => `نقترح أولوية أخضر للممر الرئيسي وتحويل جزء من المركبات إلى الطريق البديل حول ${hh(ev())} و${hh(ev() + 1)}. نرجو اعتماد الجزء الخاص بكم أو طلب تعديل.`},
+    {id: 'tAC',   to: 'energy',  loc: 'bldB',   ap: 'energy',  sub: 'طلب اعتماد: تأجيل الأحمال غير الحرجة وقت الذروة', body: () => `نقترح تأجيل جزء من الأحمال غير الحرجة في الأماكن التجارية (إنارة الواجهات والشاشات الإعلانية وشحن المركبات الكهربائية في محطات الشحن) إلى ما بعد ساعات الذروة لخفض الحمل على المغذي. نرجو الاعتماد أو تحديد الأحمال التي لا يمكن تأجيلها.`},
+    {id: 'tPlan', to: 'city',    loc: 'main',   ap: 'city',    sub: 'طلب مراجعة الخطة المشتركة', body: () => `الخطة المشتركة جاهزة للمراجعة بعد ردود الجهات. نرجو تسجيل موافقة مبدئية أو طلب تعديل قبل الاعتماد النهائي.`},
+    {id: 'tHold', to: 'events',  loc: 'venue',  ap: 'hold',    sub: 'مقترح: خروج الجمهور على دفعتين', body: () => `نقترح تقسيم خروج الجمهور إلى دفعتين ${hh(ev())} و${hh(ev() + 1)} لتخفيف الضغط على الطرق، مع تخفيف تشغيل الأجزاء غير المستخدمة من الموقع أثناء الانتظار.`},
+    {id: 'tFeed', to: 'energy',  loc: 'feeder', ap: null,      sub: 'استفسار: الهامش المتاح في مغذي المنطقة', body: () => `ما الهامش المتاح في مغذي المنطقة الساعة ${hh(ev())}؟ نحتاجه لتقييم أثر أي تشغيل إضافي في الموقع.`}
+  ];
+  const ev = () => (W.R && W.R.inp && W.R.inp.ev) || 22;
+  let seq = 0, mins = 2;
+  const stamp = () => { const h = W.hour % 24, m = String((mins += 3) % 60).padStart(2, '0'); return `${h % 12 === 0 ? 12 : h % 12}:${m} ${h < 12 ? 'ص' : 'م'}`; };
+  const M = {msgs: [], log: [], filt: 'all', tab: 'chat', sel: null, modOpen: null, open: false, comp: false};
+
+  function add(m) { const x = Object.assign({id: ++seq, t: stamp(), st: m.ap ? 'pending' : 'info', unread: true}, m); M.msgs.unshift(x); return x; }
+  function seed() {
+    M.msgs = []; M.log = []; seq = 0; mins = 2;
+    const pct = W.R ? Math.round(W.R.ref.L.total[ev()] / W.R.as.feederKW * 100) : 96;
+    add({from: 'events', to: 'city', loc: 'venue', sub: 'إشعار: موعد نهاية الفعالية', body: `الفعالية تنتهي ${hh(ev())} بحضور ${fmt(W.R ? W.R.inp.crowd : 25000)} شخص. نتوقع خروج أغلب الجمهور خلال الساعة الأولى.`});
+    add({from: 'energy', to: 'city', loc: 'feeder', sub: 'تنبيه: المغذي قريب من حده', body: `حمل مغذي المنطقة متوقع عند ${pct}% من حده الساعة ${hh(ev())}. أي تشغيل إضافي في الموقع أو المباني يحتاج تنسيقًا مسبقًا.`});
+    const T = id => TEMPLATES.find(t => t.id === id);
+    [T('tSig'), T('tAC'), T('tPlan')].forEach(t => add({from: 'city', to: t.to, loc: t.loc, ap: t.ap, sub: t.sub, body: t.body()}));
+    if (W.R && W.R.holdOption) { const t = T('tHold'); add({from: 'city', to: t.to, loc: t.loc, ap: t.ap, sub: t.sub, body: t.body()}); }
+    M.sel = M.msgs[0] ? M.msgs[0].id : null;
+  }
+  const unread = () => M.msgs.filter(m => m.unread).length;
+
+  // ---------- زر المغلف
+  const tools = document.querySelector('.bar-tools');
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'msg-btn'; btn.id = 'msgBtn'; btn.setAttribute('aria-haspopup', 'dialog');
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></svg><span class="msg-badge" id="msgBadge"></span>';
+  tools.insertBefore(btn, tools.querySelector('.acct'));
+
+  // ---------- اللوحة
+  const back = document.createElement('div'); back.className = 'msgp-back'; back.hidden = true;
+  const P = document.createElement('aside'); P.className = 'msgp'; P.hidden = true; P.setAttribute('role', 'dialog'); P.setAttribute('aria-modal', 'true'); P.setAttribute('aria-labelledby', 'msgTitle');
+  P.innerHTML = `<div class="msgp-head"><div><h2 id="msgTitle">مراسلات الجهات</h2><p>تواصل رسمي وتفاوض قبل اعتماد القرار المشترك · محاكاة لا ترسل أوامر فعلية</p></div><button type="button" class="icon-btn" id="msgClose" aria-label="إغلاق"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
+    <div class="msgp-tabs" role="tablist"><button type="button" role="tab" id="mtChat" aria-selected="true">المحادثات</button><button type="button" role="tab" id="mtLog" aria-selected="false">سجل القرارات</button></div>
+    <div class="msgp-body" id="msgBody"></div>
+    <div class="mnew" id="msgNew"><span>رسالة رسمية لجهة محددة، مع قالب جاهز وموقع على الخريطة</span><button type="button" id="msgNewBtn" aria-expanded="false" aria-controls="msgComp">رسالة جديدة</button></div>
+    <form class="mcomp" id="msgComp" hidden>
+      <div class="g"><label>إلى الجهة<select id="mcTo">${Object.entries(AGS).filter(([k]) => k !== 'city').map(([k, a]) => `<option value="${k}">${a.n}</option>`).join('')}<option value="city">${AGS.city.n}</option></select></label>
+      <label>قالب جاهز<select id="mcTpl"><option value="">رسالة حرة</option>${TEMPLATES.map(t => `<option value="${t.id}">${t.sub}</option>`).join('')}</select></label></div>
+      <div class="g"><label>الموقع على الخريطة<select id="mcLoc">${Object.entries(LOCS).map(([k, l]) => `<option value="${k}">${l.n}</option>`).join('')}</select></label>
+      <label>المرسل<select id="mcFrom"><option value="city">${AGS.city.n}</option><option value="traffic">${AGS.traffic.n}</option><option value="energy">${AGS.energy.n}</option><option value="events">${AGS.events.n}</option></select></label></div>
+      <label>نص الرسالة<textarea id="mcText" placeholder="اكتب الرسالة أو اختر قالبًا جاهزًا"></textarea></label>
+      <div class="macts"><button type="submit" class="send">إرسال</button><button type="button" id="msgCompCancel">إلغاء</button></div>
+    </form>`;
+  document.body.append(back, P);
+  const toast = document.createElement('div'); toast.className = 'mtoast'; toast.hidden = true; toast.setAttribute('role', 'status'); document.body.append(toast);
+  let tt; const say = t => { toast.textContent = t; toast.hidden = false; clearTimeout(tt); tt = setTimeout(() => toast.hidden = true, 3200); };
+
+  const agTag = k => `<span class="mag"><i style="background:${AGS[k].c}"></i>${AGS[k].n}</span>`;
+  const ST = {pending: ['pending', 'بانتظار الرد'], ok: ['ok', 'موافق'], no: ['no', 'مرفوض'], mod: ['mod', 'طُلب تعديل'], info: ['info', 'للعلم']};
+
+  function miniMap() {
+    const dark = mapIsDark(), bg = dark ? '#16263A' : '#EEF1F5', road = dark ? '#3A4E66' : '#C9D1DB', ink = dark ? '#C9D5E0' : '#4A5666';
+    const shown = list();
+    const pins = Object.entries(LOCS).map(([k, l]) => { const ms = shown.filter(m => m.loc === k); if (!ms.length) return ''; const sel = ms.some(m => m.id === M.sel), m0 = ms.find(m => m.id === M.sel) || ms[0], col = AGS[m0.from === 'city' ? m0.to : m0.from].c;
+      return `<g class="mpin${sel ? ' sel' : ''}" data-pin="${m0.id}" tabindex="0" role="button" aria-label="${esc(l.n)}: ${ms.length} رسائل"><circle class="pulse" cx="${l.x}" cy="${l.y}" r="14" fill="${col}" opacity="0"/><circle cx="${l.x}" cy="${l.y}" r="${sel ? 15 : 12}" fill="${col}" stroke="#fff" stroke-width="2.5"/><text x="${l.x}" y="${l.y + 4.5}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">${ms.length}</text></g>`; }).join('');
+    const selM = M.msgs.find(m => m.id === M.sel);
+    return `<div class="mmap"><svg viewBox="40 90 860 400" role="img" aria-label="الخريطة المصغرة ومواقع الرسائل"><rect x="40" y="90" width="860" height="400" fill="${bg}"/>
+      <path d="${MP.alt}" stroke="${road}" stroke-width="10" fill="none" stroke-linecap="round"/><path d="${MP.main}" stroke="${road}" stroke-width="14" fill="none" stroke-linecap="round"/>
+      ${IX.map(x => `<rect x="${x - 4}" y="282" width="8" height="14" rx="2" fill="${ink}"/>`).join('')}
+      <rect x="${BLD.A.x - 26}" y="${BLD.A.y - 16}" width="52" height="32" rx="5" fill="${road}"/><rect x="${BLD.B.x - 26}" y="${BLD.B.y - 16}" width="52" height="32" rx="5" fill="${road}"/>
+      <ellipse cx="830" cy="300" rx="52" ry="38" fill="${road}"/><rect x="152" y="132" width="36" height="36" rx="7" fill="${road}"/>
+      <text x="170" y="190" font-size="12" fill="${ink}" text-anchor="middle">المغذي</text><text x="${BLD.A.x}" y="${BLD.A.y - 22}" font-size="12" fill="${ink}" text-anchor="middle">حكومي</text><text x="${BLD.B.x}" y="${BLD.B.y - 22}" font-size="12" fill="${ink}" text-anchor="middle">تجاري</text><text x="830" y="358" font-size="12" fill="${ink}" text-anchor="middle">الفعالية</text><text x="420" y="482" font-size="12" fill="${ink}" text-anchor="middle">الطريق البديل</text>
+      ${pins}</svg><div class="cap"><span>${selM ? `المحدد: ${esc(LOCS[selM.loc].n)}` : 'اضغط على رقم لعرض رسائل الموقع'}</span><span>الألوان حسب الجهة</span></div></div>`;
+  }
+  const list = () => M.msgs.filter(m => M.filt === 'all' || m.from === M.filt || m.to === M.filt);
+
+  function card(m) {
+    const [sc, sl] = ST[m.st], canAct = m.ap && (m.st === 'pending' || m.st === 'mod');
+    return `<article class="mcard${m.id === M.sel ? ' sel' : ''}${m.unread ? ' unread' : ''}" data-mid="${m.id}">
+      <div class="mrow"><div class="mfrom">${agTag(m.from)}<span aria-hidden="true">←</span>${agTag(m.to)}</div><span class="mst ${sc}">${sl}</span></div>
+      <h4>${esc(m.sub)}</h4><p>${esc(m.body)}</p>
+      <div class="mrow"><button type="button" class="mloc" data-loc="${m.id}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${esc(LOCS[m.loc].n)}</button><span class="mnote">${m.t}${m.re ? ' · رد على رسالة سابقة' : ''}</span></div>
+      ${canAct ? `<div class="macts"><button type="button" class="ok" data-act="ok" data-id="${m.id}">موافق</button><button type="button" class="no" data-act="no" data-id="${m.id}">رفض</button><button type="button" class="mod" data-act="mod" data-id="${m.id}">تعديل</button></div><span class="mnote">الرد باسم ${AGS[m.to].n} (محاكاة)</span>` : ''}
+      ${M.modOpen === m.id ? `<div class="mmod"><textarea id="modTxt" aria-label="التعديل المطلوب" placeholder="اكتب التعديل المطلوب، مثل: نوافق على التحويل بنسبة أقل، أو نستثني شحن المركبات من التأجيل"></textarea><div class="macts"><button type="button" class="ok" data-act="modSend" data-id="${m.id}">إرسال طلب التعديل</button><button type="button" data-act="modCancel" data-id="${m.id}">إلغاء</button></div></div>` : ''}
+    </article>`;
+  }
+  function render() {
+    const b = $('msgBadge'), u = unread(); b.textContent = u > 9 ? '9+' : u; b.hidden = !u;
+    btn.setAttribute('aria-label', `مراسلات الجهات${u ? `، ${u} غير مقروءة` : ''}`);
+    if (P.hidden) return;
+    $('mtChat').setAttribute('aria-selected', M.tab === 'chat'); $('mtLog').setAttribute('aria-selected', M.tab === 'log'); $('msgNew').hidden = M.tab !== 'chat' || M.comp; $('msgComp').hidden = M.tab !== 'chat' || !M.comp;
+    if (M.tab === 'log') {
+      $('msgBody').innerHTML = M.log.length ? `<div class="mlog">${M.log.map(l => `<div class="li"><span class="t">${l.t}</span><div><b>${esc(l.what)}</b><div class="small">${agTag(l.by)}</div><div class="e">${esc(l.eff)}</div></div></div>`).join('')}</div><p class="mnote">يسجّل هنا كل رد على طلب اعتماد وأثره على الخطة المشتركة. السجل للعرض في هذه الجلسة فقط.</p>` : '<div class="mempty">لا توجد قرارات مسجلة بعد. ردّي على طلب اعتماد من تبويب المحادثات.</div>';
+      return;
+    }
+    const L = list();
+    $('msgBody').innerHTML = miniMap() + `<div class="mfilt" role="group" aria-label="تصفية حسب الجهة">${[['all', 'الكل'], ['traffic', 'المرور'], ['energy', 'الطاقة'], ['city', 'المدينة'], ['events', 'الفعاليات']].map(([k, n]) => `<button type="button" data-filt="${k}" aria-pressed="${M.filt === k}">${n}</button>`).join('')}</div>`
+      + `<div class="mlist">${L.length ? L.map(card).join('') : '<div class="mempty">لا توجد رسائل لهذه الجهة.</div>'}</div>`;
+    if (M.modOpen) { const t = $('modTxt'); if (t) t.focus(); }
+  }
+  function openP() { M.open = true; P.hidden = false; back.hidden = false; render(); setTimeout(() => { list().forEach(m => m.unread = false); render(); }, 1500); $('msgClose').focus(); }
+  function closeP() { P.hidden = true; back.hidden = true; M.open = false; render(); btn.focus(); }
+  btn.addEventListener('click', openP); $('msgClose').addEventListener('click', closeP); back.addEventListener('click', closeP);
+  P.addEventListener('keydown', e => { if (e.key === 'Escape') closeP(); });
+  $('mtChat').addEventListener('click', () => { M.tab = 'chat'; render(); }); $('mtLog').addEventListener('click', () => { M.tab = 'log'; render(); });
+
+  const AP_LABEL = {traffic: 'اعتماد إدارة المرور لجزئها من الخطة', energy: 'اعتماد إدارة الطاقة والمرافق لجزئها من الخطة', city: 'موافقة مبدئية من إدارة المدينة على الخطة المشتركة', hold: 'اعتماد الخروج على دفعتين'};
+  function decide(m, kind, note) {
+    const k = m.ap;
+    if (kind === 'ok') { m.st = 'ok'; if (k && W.appr && k in W.appr) W.appr[k] = true; M.log.unshift({t: stamp(), by: m.to, what: `موافقة: ${m.sub.replace(/^[^:]+:\s*/, '')}`, eff: `حُدّثت الخطة المشتركة: ${AP_LABEL[k] || 'سُجّل الرد'}`}); say(`تمت الموافقة، وحُدّثت الخطة المشتركة`); }
+    if (kind === 'no') { m.st = 'no'; if (k && W.appr && k in W.appr) W.appr[k] = false; M.log.unshift({t: stamp(), by: m.to, what: `رفض: ${m.sub.replace(/^[^:]+:\s*/, '')}`, eff: 'لم يُضَف الإجراء للخطة المشتركة، ويحتاج بديلًا'}); say('سُجّل الرفض في سجل القرارات'); }
+    if (kind === 'mod') { m.st = 'mod'; if (k && W.appr && k in W.appr) W.appr[k] = false;
+      add({from: m.to, to: m.from, loc: m.loc, ap: null, re: m.id, sub: `طلب تعديل: ${m.sub.replace(/^[^:]+:\s*/, '')}`, body: note || 'نطلب تعديل المقترح قبل الاعتماد.'}).unread = false;
+      M.log.unshift({t: stamp(), by: m.to, what: `طلب تعديل: ${m.sub.replace(/^[^:]+:\s*/, '')}`, eff: 'بقي الإجراء معلقًا لحين إرسال مقترح معدّل'}); say('أُرسل طلب التعديل للجهة المرسِلة'); }
+    M.modOpen = null; m.unread = false; renderAll();
+  }
+  P.addEventListener('click', e => {
+    const f = e.target.closest('[data-filt]'); if (f) { M.filt = f.dataset.filt; render(); return; }
+    const a = e.target.closest('[data-act]'); if (a) { const m = M.msgs.find(x => x.id === +a.dataset.id); if (!m) return;
+      if (a.dataset.act === 'mod') { M.modOpen = m.id; M.sel = m.id; render(); return; }
+      if (a.dataset.act === 'modCancel') { M.modOpen = null; render(); return; }
+      if (a.dataset.act === 'modSend') { const v = ($('modTxt').value || '').trim(); decide(m, 'mod', v); return; }
+      decide(m, a.dataset.act); return; }
+    const l = e.target.closest('[data-loc]'); if (l) { M.sel = +l.dataset.loc; render(); P.querySelector('.mmap').scrollIntoView({block: 'nearest', behavior: 'smooth'}); return; }
+    const p = e.target.closest('[data-pin]'); if (p) { M.sel = +p.dataset.pin; render(); const c = P.querySelector(`[data-mid="${M.sel}"]`); if (c) c.scrollIntoView({block: 'nearest', behavior: 'smooth'}); return; }
+    const c = e.target.closest('[data-mid]'); if (c && !e.target.closest('button,textarea')) { const m = M.msgs.find(x => x.id === +c.dataset.mid); if (m) { m.unread = false; M.sel = m.id; render(); } }
+  });
+  P.addEventListener('keydown', e => { const p = e.target.closest && e.target.closest('[data-pin]'); if (p && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); p.dispatchEvent(new MouseEvent('click', {bubbles: true})); } });
+
+  $('msgNewBtn').addEventListener('click', () => { M.comp = true; render(); $('mcTo').focus(); });
+  $('msgCompCancel').addEventListener('click', () => { M.comp = false; render(); $('msgNewBtn').focus(); });
+  $('mcTpl').addEventListener('change', () => { const t = TEMPLATES.find(x => x.id === $('mcTpl').value); if (!t) return; $('mcTo').value = t.to; $('mcLoc').value = t.loc; $('mcText').value = t.body(); $('mcFrom').value = t.to === 'city' ? 'traffic' : 'city'; });
+  $('msgComp').addEventListener('submit', e => { e.preventDefault();
+    const to = $('mcTo').value, from = $('mcFrom').value, txt = $('mcText').value.trim(), t = TEMPLATES.find(x => x.id === $('mcTpl').value);
+    if (!txt) { $('mcText').focus(); say('اكتب نص الرسالة أولًا'); return; }
+    if (to === from) { say('اختر جهة مستلمة مختلفة عن المرسل'); return; }
+    const m = add({from, to, loc: $('mcLoc').value, ap: t && t.to === to ? t.ap : null, sub: t ? t.sub : 'رسالة', body: txt}); m.unread = false; M.sel = m.id;
+    $('mcText').value = ''; $('mcTpl').value = ''; M.comp = false; render(); say(`أُرسلت الرسالة إلى ${AGS[to].n}`);
+    setTimeout(() => { const r = add({from: to, to: from, loc: m.loc, re: m.id, sub: 'استلام', body: m.ap ? 'استُلم الطلب، وهو قيد المراجعة لدى الجهة.' : 'استُلمت الرسالة، وسيتم الرد عليها.'}); render(); }, 2500);
+  });
+
+  // مزامنة مع بقية الواجهة: إعادة البذر عند تغيير السيناريو، وتحديث الحالات عند الاعتماد من صفحات أخرى
+  let lastKey = '';
+  const _renderAll = renderAll;
+  renderAll = function () { _renderAll.apply(this, arguments);
+    const key = W.R ? `${W.scen}|${W.R.inp.ev}|${W.R.inp.crowd}` : W.scen; if (key !== lastKey) { lastKey = key; seed(); }
+    M.msgs.forEach(m => { if (!m.ap || !W.appr || !(m.ap in W.appr)) return; if (W.appr[m.ap] && m.st === 'pending') m.st = 'ok'; if (!W.appr[m.ap] && m.st === 'ok') m.st = 'pending'; });
+    render(); };
+  renderAll();
+})();
+
 })();
 </script>
 
@@ -2156,4 +2339,78 @@ body{padding-right:0!important}
 @media (max-width:420px){.hstats{grid-template-columns:1fr}.acct{display:none}}
 
 </style>
+<style>
+/* مراسلات الجهات: زر المغلف + لوحة المحادثات وسجل القرارات */
+.msg-btn{position:relative;width:38px;height:38px;display:inline-grid;place-items:center;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:transparent;color:inherit;cursor:pointer}
+.msg-btn:hover{background:rgba(127,127,127,.12)}
+.msg-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.msg-btn svg{width:20px;height:20px}
+.msg-badge{position:absolute;top:-6px;inset-inline-end:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#D93025;color:#fff;font:700 11px/19px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--panel)}
+.msg-badge[hidden]{display:none}
+.msgp-back{position:fixed;inset:0;background:rgba(10,18,28,.38);z-index:40}
+.msgp{position:fixed;top:0;bottom:0;left:0;width:min(520px,100vw);background:var(--panel);color:var(--ink);z-index:41;box-shadow:6px 0 28px rgba(0,0,0,.22);display:flex;flex-direction:column;direction:rtl;padding-bottom:env(safe-area-inset-bottom,0px)}
+.msgp[hidden],.msgp-back[hidden]{display:none}
+.msgp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.msgp-head h2{font-size:17px;margin:0}
+.msgp-head p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
+.msgp-tabs{display:flex;gap:4px;padding:8px 16px 0}
+.msgp-tabs button{flex:1;border:1px solid var(--line);background:var(--soft);color:var(--muted);border-radius:9px;min-height:36px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+.msgp-tabs button[aria-selected="true"]{background:var(--teal-soft);border-color:var(--teal);color:var(--teal-ink)}
+.msgp-body{flex:1;min-height:0;overflow-y:auto;padding:10px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.msgp-body>*{flex-shrink:0}
+.mnew{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--line)}
+.mnew button{background:var(--teal);color:#fff;border:0;border-radius:9px;min-height:38px;padding:0 16px;font:700 13px inherit;font-family:inherit;cursor:pointer}
+.mnew span{font-size:11.5px;color:var(--muted)}
+.mmap{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--soft)}
+.mmap svg{display:block;width:100%;height:auto}
+.mmap .cap{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);padding:6px 10px;border-top:1px solid var(--line);background:var(--panel)}
+.mpin{cursor:pointer}
+.mpin:focus-visible circle{stroke:var(--teal);stroke-width:3}
+@keyframes mpulse{0%{r:14;opacity:.55}100%{r:30;opacity:0}}
+.mpin.sel .pulse{animation:mpulse 1.4s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.mpin.sel .pulse{animation:none;opacity:.35}}
+.mfilt{display:flex;gap:6px;flex-wrap:wrap}
+.mfilt button{border:1px solid var(--line2);background:var(--panel);color:var(--ink);border-radius:999px;min-height:32px;padding:0 12px;font:600 12.5px inherit;font-family:inherit;cursor:pointer}
+.mfilt button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mcard{border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:var(--panel);display:flex;flex-direction:column;gap:7px}
+.mcard.sel{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-soft)}
+.mcard.unread{border-inline-start:3px solid #D93025}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.mfrom{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mfrom b{color:var(--ink)}
+.mag{display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.mag i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.mcard h4{margin:0;font-size:14px;line-height:1.5}
+.mcard p{margin:0;font-size:13px;line-height:1.7;color:var(--ink)}
+.mloc{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--teal-ink);background:var(--teal-soft);border:0;border-radius:999px;padding:3px 10px;cursor:pointer;font-family:inherit}
+.mst{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.mst.pending{background:var(--warn-soft);color:var(--warn)}
+.mst.ok{background:var(--good-soft);color:var(--good)}
+.mst.no{background:var(--bad-soft);color:var(--bad)}
+.mst.mod{background:var(--soft);color:var(--blue)}
+.mst.info{background:var(--soft);color:var(--muted)}
+.macts{display:flex;gap:6px;flex-wrap:wrap}
+.macts button{border-radius:9px;min-height:34px;padding:0 14px;font:700 12.5px inherit;font-family:inherit;cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--ink)}
+.macts .ok{background:var(--good);border-color:var(--good);color:#fff}
+.macts .no{color:var(--bad);border-color:var(--bad)}
+.macts .mod{color:var(--blue);border-color:var(--blue)}
+.mmod{display:flex;flex-direction:column;gap:6px}
+.mmod textarea,.mcomp textarea,.mcomp select{width:100%;border:1px solid var(--line2);border-radius:9px;background:var(--panel);color:var(--ink);font:13px/1.6 inherit;font-family:inherit;padding:8px 10px}
+.mmod textarea,.mcomp textarea{min-height:64px;resize:vertical}
+.mcomp{border-top:1px solid var(--line);padding:10px 16px 12px;display:flex;flex-direction:column;gap:8px;background:var(--panel)}
+.mcomp .g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mcomp label{font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.mcomp .send{align-self:flex-start;background:var(--teal);color:#fff;border:0;border-radius:9px;min-height:38px;padding:0 18px;font:700 13px inherit;font-family:inherit;cursor:pointer}
+.mnote{font-size:11.5px;color:var(--muted);line-height:1.6}
+.mlog{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.mlog .li{display:grid;grid-template-columns:70px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6}
+.mlog .li:last-child{border-bottom:0}
+.mlog .t{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.mlog .e{font-size:12px;color:var(--teal-ink)}
+.mempty{font-size:13px;color:var(--muted);text-align:center;padding:18px 8px;border:1px dashed var(--line2);border-radius:12px}
+.mtoast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:10px 16px;border-radius:10px;font-size:13px;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:calc(100% - 32px)}
+.mtoast[hidden]{display:none}
+</style>
+
 </body></html>
